@@ -1,0 +1,71 @@
+╔═══════════════════════════════════════════════════════════════╗
+║     INSTRUCCIONES DE EJECUCIÓN - CHATBOT CON GEMINI (IA)     ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Este chatbot usa Inteligencia Artificial de Google Gemini para
+responder de manera inteligente a las preguntas del usuario.
+
+═══════════════════════════════════════════════════════════════
+
+📋 PASOS PARA EJECUTAR:
+
+1️⃣  Abrir una terminal/consola en ESTA carpeta (chatbot-gemini)
+
+2️⃣  Instalar las dependencias (solo la primera vez):
+
+    pip install -r requirements.txt
+
+3️⃣  Configurar tu API Key de Gemini:
+
+    - Abre el archivo: config.py
+    - Reemplaza la línea: GEMINI_API_KEY = "TU_API_KEY_AQUI"
+    - Si no tienes una API Key, obtén una gratis en:
+      https://makersuite.google.com/app/apikey
+
+4️⃣  Ejecutar el servidor:
+
+    python servidor.py
+
+5️⃣  Abrir el navegador y visitar:
+
+    http://localhost:5001
+
+═══════════════════════════════════════════════════════════════
+
+✅ ¡Listo! Ya puedes chatear con el bot inteligente.
+
+═══════════════════════════════════════════════════════════════
+
+🛑 PARA DETENER EL SERVIDOR:
+   Presiona Ctrl+C en la terminal
+
+═══════════════════════════════════════════════════════════════
+
+🎨 PERSONALIZAR EL BOT:
+   Edita el archivo config.py para cambiar:
+   - Nombre del bot
+   - Especialidad (medicina, programación, cocina, etc.)
+   - Personalidad
+   - Instrucciones especiales
+
+═══════════════════════════════════════════════════════════════
+
+⚠️  NOTA IMPORTANTE:
+    Este chatbot necesita conexión a internet para funcionar
+    porque se comunica con la API de Google Gemini.
+
+═══════════════════════════════════════════════════════════════
+
+🐛 PROBLEMAS COMUNES:
+
+❌ Error: "No module named flask"
+   ➜ Solución: pip install -r requirements.txt
+
+❌ El bot no responde
+   ➜ Verifica tu API Key en config.py
+   ➜ Verifica tu conexión a internet
+
+❌ Error: "Address already in use"
+   ➜ El puerto 5001 está ocupado
+   ➜ Cierra cualquier servidor anterior
+   ➜ O cambia el puerto en servidor.py (línea final)

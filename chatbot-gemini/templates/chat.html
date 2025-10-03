@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexBot - Consultor Legal Mexicano</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #F5DEB3;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .chat-container {
+            width: 800px;
+            height: 750px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #654321;
+            color: white;
+            padding: 25px;
+            position: relative;
+        }
+
+        .bot-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bot-avatar {
+            width: 50px;
+            height: 50px;
+            background: #F4A460;
+            color: #654321;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .bot-details h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .bot-speciality {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .connection-status {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #FEFEFE;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-usuario {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message-bot {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .mini-avatar {
+            width: 32px;
+            height: 32px;
+            background: #654321;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message-bubble {
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 75%;
+            word-wrap: break-word;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        .message-usuario .message-bubble {
+            background: #654321;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-bot .message-bubble {
+            background: #F5DEB3;
+            color: #654321;
+            border: 2px solid #CD853F;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .message-bot .message-time {
+            text-align: left;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 10px 15px;
+            background: #F5DEB3;
+            border-radius: 20px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #654321;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        #messageInput:focus {
+            border-color: #CD853F;
+            box-shadow: 0 0 0 3px rgba(205, 133, 63, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 14px 25px;
+            background: #654321;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #8B4513;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(101, 67, 33, 0.3);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        #clearButton {
+            background: #B22222;
+            padding: 10px 20px;
+            font-size: 13px;
+        }
+
+        .system-message {
+            text-align: center;
+            color: #8B7355;
+            font-size: 13px;
+            margin: 15px 0;
+            font-style: italic;
+            padding: 10px;
+            background: #FAF0E6;
+            border-radius: 10px;
+            border: 1px solid #DEB887;
+        }
+
+        .chat-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 10px;
+            }
+            .chat-container {
+                width: 100%;
+                height: calc(100vh - 20px);
+                border-radius: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="bot-info">
+                <div class="bot-avatar">⚖️</div>
+                <div class="bot-details">
+                    <h1 id="botName">LexBot</h1>
+                    <div class="bot-speciality" id="botSpeciality">Consultor Legal Especializado</div>
+                </div>
+            </div>
+            <div class="connection-status">
+                <span class="status-indicator"></span>
+                <span id="statusText">Conectado</span>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="mini-avatar">⚖️</div>
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <div class="input-container">
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="Escribe tu consulta legal aquí..."
+                    autocomplete="off"
+                >
+                <button id="sendButton">Enviar</button>
+            </div>
+            <div class="chat-actions">
+                <button id="clearButton">Limpiar chat</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        // Conectar al servidor WebSocket
+        const socket = io();
+
+        // Referencias DOM
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const clearButton = document.getElementById('clearButton');
+        const chatMessages = document.getElementById('chatMessages');
+        const statusText = document.getElementById('statusText');
+        const statusIndicator = document.querySelector('.status-indicator');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Manejar conexión
+        socket.on('connect', () => {
+            console.log('Conectado al servidor');
+            statusText.textContent = 'Conectado';
+            statusIndicator.style.background = '#4ade80';
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Desconectado del servidor');
+            statusText.textContent = 'Desconectado';
+            statusIndicator.style.background = '#ef4444';
+            agregarMensajeSistema('Conexión perdida. Intentando reconectar...');
+        });
+
+        // Recibir mensaje de bienvenida del bot
+        socket.on('mensaje_bot', (data) => {
+            typingIndicator.classList.remove('active');
+            agregarMensajeBot(data.texto, data.timestamp);
+        });
+
+        // Mostrar indicador de escritura
+        socket.on('bot_escribiendo', (data) => {
+            if (data.estado) {
+                typingIndicator.classList.add('active');
+            } else {
+                typingIndicator.classList.remove('active');
+            }
+        });
+
+        // Recibir nuevo mensaje de usuario
+        socket.on('nuevo_mensaje', (data) => {
+            if (data.es_usuario) {
+                agregarMensajeUsuario(data.mensaje, data.timestamp);
+            }
+        });
+
+        // Chat limpiado
+        socket.on('chat_limpiado', () => {
+            chatMessages.innerHTML = '<div class="system-message">Chat limpiado. ¿En qué puedo ayudarte?</div>';
+        });
+
+        // Enviar mensaje
+        function enviarMensaje() {
+            const mensaje = messageInput.value.trim();
+
+            if (mensaje) {
+                socket.emit('enviar_mensaje', { mensaje: mensaje });
+                messageInput.value = '';
+            }
+        }
+
+        // Agregar mensaje del usuario
+        function agregarMensajeUsuario(texto, timestamp) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message message-usuario';
+
+            messageDiv.innerHTML = `
+                <div>
+                    <div class="message-bubble">${escapeHtml(texto)}</div>
+                    <div class="message-time">${timestamp}</div>
+                </div>
+            `;
+
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Agregar mensaje del bot
+        function agregarMensajeBot(texto, timestamp) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message message-bot';
+
+            // Formatear texto del bot (renderizar markdown básico)
+            let textoFormateado = texto
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Negrita
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')              // Cursiva
+                .replace(/\n/g, '<br>');                           // Saltos de línea
+
+            messageDiv.innerHTML = `
+                <div class="mini-avatar">⚖️</div>
+                <div>
+                    <div class="message-bubble">${textoFormateado}</div>
+                    <div class="message-time">${timestamp}</div>
+                </div>
+            `;
+
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Agregar mensaje del sistema
+        function agregarMensajeSistema(texto) {
+            const systemDiv = document.createElement('div');
+            systemDiv.className = 'system-message';
+            systemDiv.textContent = texto;
+            chatMessages.appendChild(systemDiv);
+            scrollToBottom();
+        }
+
+        // Escapar HTML para prevenir inyección
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Scroll automático al final
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', enviarMensaje);
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensaje();
+            }
+        });
+
+        clearButton.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que quieres limpiar el chat?')) {
+                socket.emit('limpiar_chat');
+            }
+        });
+
+        // Focus inicial
+        messageInput.focus();
+    </script>
+</body>
+</html>

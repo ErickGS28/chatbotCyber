@@ -1,0 +1,16 @@
+# ============================================
+# DEPENDENCIAS DEL CHATBOT CON GEMINI
+# ============================================
+# Estas son las librerías necesarias para que funcione el chatbot
+
+# Flask: Framework web para crear el servidor
+flask==3.0.0
+
+# Flask-SocketIO: Para comunicación en tiempo real (WebSocket)
+flask-socketio==5.3.5
+
+# Python-SocketIO: Soporte de SocketIO para Python
+python-socketio==5.10.0
+
+# Google Generative AI: Para usar la API de Gemini
+google-generativeai==0.3.2

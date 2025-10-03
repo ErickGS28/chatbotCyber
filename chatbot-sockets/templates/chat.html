@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Multiusuario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ========== MODAL DE NOMBRE ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: modalAppear 0.3s ease;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .modal-content p {
+            color: #6b7280;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .modal-content input:focus {
+            border-color: #667eea;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .modal-content button:hover {
+            transform: translateY(-2px);
+        }
+
+        .modal-content button:active {
+            transform: translateY(0);
+        }
+
+        /* ========== CONTENEDOR PRINCIPAL ========== */
+        .main-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ========== SIDEBAR USUARIOS ========== */
+        .users-sidebar {
+            width: 250px;
+            background: #f9fafb;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .users-count {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .users-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .user-item {
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-name {
+            flex: 1;
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .user-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+
+        /* ========== ÁREA DE CHAT ========== */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fefefe;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-propio {
+            text-align: right;
+        }
+
+        .message-otro {
+            text-align: left;
+        }
+
+        .message-name {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .message-propio .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-otro .message-bubble {
+            background: #e5e7eb;
+            color: #374151;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .system-message {
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+            margin: 15px 0;
+            padding: 8px 15px;
+            background: #f3f4f6;
+            border-radius: 15px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .notification {
+            text-align: center;
+            color: #667eea;
+            font-size: 12px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        #messageInput:focus {
+            border-color: #667eea;
+        }
+
+        #messageInput:disabled {
+            background: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        #sendButton {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        #sendButton:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        #sendButton:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        #sendButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .main-container {
+                height: calc(100vh - 40px);
+            }
+
+            .users-sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal para ingresar nombre -->
+    <div class="modal-overlay" id="nameModal">
+        <div class="modal-content">
+            <h2>👋 ¡Bienvenido!</h2>
+            <p>Ingresa tu nombre para unirte al chat</p>
+            <input
+                type="text"
+                id="nameInput"
+                placeholder="Tu nombre..."
+                maxlength="20"
+                autocomplete="off"
+            >
+            <button id="joinButton">Unirme al Chat</button>
+        </div>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="main-container">
+        <!-- Sidebar de usuarios -->
+        <div class="users-sidebar">
+            <div class="sidebar-header">
+                <h3>👥 Usuarios</h3>
+                <div class="users-count" id="usersCount">0 conectados</div>
+            </div>
+            <div class="users-list" id="usersList">
+                <!-- Los usuarios se agregarán dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Área de chat -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div>
+                    <h1>💬 Chat Multiusuario</h1>
+                    <div class="user-info">Conectado como: <span id="currentUserName">---</span></div>
+                </div>
+                <div class="connection-status">
+                    <span class="status-indicator"></span>
+                    <span id="statusText">Conectado</span>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="system-message">Bienvenido al chat multiusuario 🚀</div>
+            </div>
+
+            <div class="chat-input">
+                <div class="input-container">
+                    <input
+                        type="text"
+                        id="messageInput"
+                        placeholder="Escribe tu mensaje..."
+                        autocomplete="off"
+                        disabled
+                    >
+                    <button id="sendButton" disabled>Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        // ========== VARIABLES GLOBALES ==========
+        const socket = io();
+        let miNombre = null;
+
+        // Referencias DOM
+        const nameModal = document.getElementById('nameModal');
+        const nameInput = document.getElementById('nameInput');
+        const joinButton = document.getElementById('joinButton');
+        const currentUserName = document.getElementById('currentUserName');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatMessages = document.getElementById('chatMessages');
+        const usersList = document.getElementById('usersList');
+        const usersCount = document.getElementById('usersCount');
+        const statusText = document.getElementById('statusText');
+        const statusIndicator = document.querySelector('.status-indicator');
+
+        // ========== FUNCIONES DE MODAL ==========
+
+        // Unirse al chat
+        function unirseAlChat() {
+            const nombre = nameInput.value.trim();
+
+            if (!nombre) {
+                alert('Por favor ingresa tu nombre');
+                return;
+            }
+
+            miNombre = nombre;
+            socket.emit('registrar_usuario', { nombre: nombre });
+        }
+
+        // ========== EVENTOS DE WEBSOCKET ==========
+
+        // Conexión establecida
+        socket.on('connect', () => {
+            console.log('Conectado al servidor');
+            statusText.textContent = 'Conectado';
+            statusIndicator.style.background = '#4ade80';
+        });
+
+        // Desconexión
+        socket.on('disconnect', () => {
+            console.log('Desconectado del servidor');
+            statusText.textContent = 'Desconectado';
+            statusIndicator.style.background = '#ef4444';
+            agregarNotificacion('Conexión perdida. Intentando reconectar...');
+        });
+
+        // Registro exitoso
+        socket.on('registro_exitoso', (data) => {
+            console.log('Registro exitoso:', data.nombre);
+
+            // Ocultar modal
+            nameModal.classList.add('hidden');
+
+            // Actualizar UI
+            currentUserName.textContent = data.nombre;
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+            messageInput.focus();
+
+            agregarNotificacion(`Te has unido como ${data.nombre}`);
+        });
+
+        // Usuario conectado
+        socket.on('usuario_conectado', (data) => {
+            agregarNotificacion(`${data.nombre} se ha unido al chat`);
+        });
+
+        // Usuario desconectado
+        socket.on('usuario_desconectado', (data) => {
+            agregarNotificacion(`${data.nombre} ha salido del chat`);
+        });
+
+        // Actualizar lista de usuarios
+        socket.on('actualizar_usuarios', (data) => {
+            usersList.innerHTML = '';
+
+            data.usuarios.forEach(nombre => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+
+                const inicial = nombre.charAt(0).toUpperCase();
+
+                userItem.innerHTML = `
+                    <div class="user-avatar">${inicial}</div>
+                    <div class="user-name">${nombre}</div>
+                    <div class="user-status"></div>
+                `;
+
+                usersList.appendChild(userItem);
+            });
+
+            usersCount.textContent = `${data.total} conectado${data.total !== 1 ? 's' : ''}`;
+        });
+
+        // Nuevo mensaje
+        socket.on('nuevo_mensaje', (data) => {
+            agregarMensaje(data.nombre, data.mensaje, data.timestamp, data.es_propio);
+        });
+
+        // ========== FUNCIONES DE MENSAJES ==========
+
+        // Enviar mensaje
+        function enviarMensaje() {
+            const mensaje = messageInput.value.trim();
+
+            if (mensaje) {
+                socket.emit('enviar_mensaje', { mensaje: mensaje });
+                messageInput.value = '';
+            }
+        }
+
+        // Agregar mensaje al chat
+        function agregarMensaje(nombre, texto, timestamp, esPropio) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${esPropio ? 'message-propio' : 'message-otro'}`;
+
+            messageDiv.innerHTML = `
+                <div class="message-name">${nombre}</div>
+                <div class="message-bubble">${escapeHtml(texto)}</div>
+                <div class="message-time">${timestamp}</div>
+            `;
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Agregar notificación
+        function agregarNotificacion(texto) {
+            const notifDiv = document.createElement('div');
+            notifDiv.className = 'notification';
+            notifDiv.textContent = texto;
+            chatMessages.appendChild(notifDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Escapar HTML para prevenir XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // ========== EVENT LISTENERS ==========
+
+        // Botón de unirse
+        joinButton.addEventListener('click', unirseAlChat);
+
+        // Enter en input de nombre
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                unirseAlChat();
+            }
+        });
+
+        // Botón de enviar
+        sendButton.addEventListener('click', enviarMensaje);
+
+        // Enter en input de mensaje
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                enviarMensaje();
+            }
+        });
+
+        // Focus en input de nombre al cargar
+        nameInput.focus();
+    </script>
+</body>
+</html>
