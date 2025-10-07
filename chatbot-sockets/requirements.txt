@@ -1,13 +1,20 @@
 # ============================================
-# DEPENDENCIAS DEL CHATBOT SIMPLE
+# DEPENDENCIAS DEL CHATBOT SIMPLE CON CIFRADO
 # ============================================
-# Estas son las librerías necesarias para que funcione el chatbot
+# Estas librerías permiten ejecutar el chat con Flask,
+# WebSockets y cifrado simétrico/asimétrico
 
-# Flask: Framework web para crear el servidor
+# Flask: framework web principal
 flask==3.0.0
 
-# Flask-SocketIO: Para comunicación en tiempo real (WebSocket)
+# Flask-SocketIO: comunicación en tiempo real
 flask-socketio==5.3.5
 
-# Python-SocketIO: Soporte de SocketIO para Python
+# Python-SocketIO: soporte del lado del servidor
 python-socketio==5.10.0
+
+# Simple-websocket: servidor ligero para Flask-SocketIO (compatible con Python 3.13)
+simple-websocket>=0.10.0
+
+# Cryptography: para cifrado simétrico (Fernet/AES) y asimétrico (RSA)
+cryptography==43.0.1

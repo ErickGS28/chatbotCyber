@@ -573,8 +573,10 @@
         });
 
         // Nuevo mensaje
-        socket.on('nuevo_mensaje', (data) => {
-            agregarMensaje(data.nombre, data.mensaje, data.timestamp, data.es_propio);
+        socket.on('nuevo_mensaje', async (data) => {
+            // Verificar integridad del mensaje con hash
+            const hashValido = await verificarHashMensaje(data.mensaje, data.hash);
+            agregarMensaje(data.nombre, data.mensaje, data.timestamp, data.es_propio, hashValido);
         });
 
         // ========== FUNCIONES DE MENSAJES ==========
@@ -590,12 +592,15 @@
         }
 
         // Agregar mensaje al chat
-        function agregarMensaje(nombre, texto, timestamp, esPropio) {
+        function agregarMensaje(nombre, texto, timestamp, esPropio, hashValido = true) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${esPropio ? 'message-propio' : 'message-otro'}`;
 
+            const verificacionIcon = hashValido ? '✓' : '⚠️';
+            const verificacionTitle = hashValido ? 'Mensaje verificado (integridad confirmada)' : 'Advertencia: Hash no coincide';
+
             messageDiv.innerHTML = `
-                <div class="message-name">${nombre}</div>
+                <div class="message-name">${nombre} <span style="font-size: 10px; opacity: 0.7;" title="${verificacionTitle}">${verificacionIcon}</span></div>
                 <div class="message-bubble">${escapeHtml(texto)}</div>
                 <div class="message-time">${timestamp}</div>
             `;
@@ -623,6 +628,29 @@
                 "'": '&#039;'
             };
             return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Generar hash SHA256 de un mensaje (JavaScript)
+        async function hashearMensaje(mensaje) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(mensaje);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Verificar que el hash recibido coincida con el mensaje
+        async function verificarHashMensaje(mensaje, hashRecibido) {
+            const hashCalculado = await hashearMensaje(mensaje);
+            const valido = hashCalculado === hashRecibido;
+
+            if (!valido) {
+                console.warn('⚠️ ADVERTENCIA: El hash del mensaje no coincide!');
+                console.log('Hash recibido:', hashRecibido);
+                console.log('Hash calculado:', hashCalculado);
+            }
+
+            return valido;
         }
 
         // ========== EVENT LISTENERS ==========

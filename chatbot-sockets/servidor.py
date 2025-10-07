@@ -1,199 +1,173 @@
 # ============================================
-# CHATBOT SIMPLE CON WEBSOCKETS - MÚLTIPLES USUARIOS
+# CHATBOT SIMPLE CON CIFRADO Y HASHING
 # ============================================
-# Este es un servidor de chat que retransmite mensajes
-# entre múltiples usuarios conectados. No usa inteligencia artificial.
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 from datetime import datetime
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes
+import hashlib
 
 # ============================================
 # 1. CONFIGURACIÓN INICIAL
 # ============================================
 
-# Crear la aplicación Flask (el servidor web)
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'tu-clave-secreta-aqui'  # Clave para seguridad
+app.config['SECRET_KEY'] = 'clave-segura-flask'
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
-# Crear conexión de WebSocket (para comunicación en tiempo real)
-socketio = SocketIO(app, cors_allowed_origins="*")
-
-# Diccionario para guardar usuarios conectados: {session_id: nombre}
 usuarios_conectados = {}
-
-# Lista para almacenar mensajes (opcional, para histórico)
 mensajes = []
 
 # ============================================
-# 2. RUTAS WEB (URLs del servidor)
+# 2. CONFIGURACIÓN DE CIFRADO
+# ============================================
+#
+# INSTRUCCIONES PARA CAMBIAR MODO DE CIFRADO:
+#
+# 1. PARA USAR CIFRADO SIMÉTRICO (AES/Fernet) - MÁS RÁPIDO:
+#    → Descomenta las 3 líneas del bloque "CIFRADO SIMÉTRICO"
+#    → Comenta las 3 líneas del bloque "CIFRADO ASIMÉTRICO"
+#
+# 2. PARA USAR CIFRADO ASIMÉTRICO (RSA) - MÁS SEGURO PARA INTERCAMBIO:
+#    → Comenta las 3 líneas del bloque "CIFRADO SIMÉTRICO"
+#    → Descomenta las 3 líneas del bloque "CIFRADO ASIMÉTRICO"
+#
+# ============================================
+
+# --- CIFRADO SIMÉTRICO (POR DEFECTO - AES) ---
+key = Fernet.generate_key()
+fernet = Fernet(key)
+modo_cifrado = "simetrico"
+
+# --- CIFRADO ASIMÉTRICO (COMENTADO - DESCOMENTAR PARA USAR RSA) ---
+# private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+# public_key = private_key.public_key()
+# modo_cifrado = "asimetrico"
+
+# ============================================
+# 3. FUNCIONES DE CIFRADO, DESCIFRADO Y HASHING
+# ============================================
+
+def cifrar_mensaje(mensaje: str) -> bytes:
+    if modo_cifrado == "simetrico":
+        return fernet.encrypt(mensaje.encode())
+    elif modo_cifrado == "asimetrico":
+        return public_key.encrypt(
+            mensaje.encode(),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+    else:
+        return mensaje.encode()
+
+def descifrar_mensaje(cifrado: bytes) -> str:
+    if modo_cifrado == "simetrico":
+        return fernet.decrypt(cifrado).decode()
+    elif modo_cifrado == "asimetrico":
+        return private_key.decrypt(
+            cifrado,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        ).decode()
+    else:
+        return cifrado.decode()
+
+def hashear_mensaje(mensaje: str) -> str:
+    """Genera un hash SHA256 del mensaje para verificar integridad"""
+    return hashlib.sha256(mensaje.encode()).hexdigest()
+
+def verificar_hash(mensaje: str, hash_recibido: str) -> bool:
+    """Verifica que el hash del mensaje coincida con el hash recibido"""
+    hash_calculado = hashear_mensaje(mensaje)
+    return hash_calculado == hash_recibido
+
+# ============================================
+# 4. RUTAS WEB
 # ============================================
 
 @app.route('/')
 def index():
-    """
-    Ruta principal: cuando alguien visita http://localhost:5000
-    se muestra la página HTML del chat
-    """
     return render_template('chat.html')
 
 # ============================================
-# 3. EVENTOS DE WEBSOCKET (Comunicación en tiempo real)
+# 5. EVENTOS DE WEBSOCKET
 # ============================================
 
 @socketio.on('connect')
 def handle_connect():
-    """
-    Se ejecuta cuando un nuevo usuario se conecta al chat
-    (todavía no tiene nombre asignado)
-    """
     print(f'Nueva conexión: {request.sid}')
 
 @socketio.on('registrar_usuario')
 def handle_registrar_usuario(data):
-    """
-    Se ejecuta cuando el usuario envía su nombre
-    1. Guarda el nombre del usuario
-    2. Actualiza la lista de usuarios conectados
-    3. Notifica a todos que alguien se unió
-    """
-    nombre = data.get('nombre', 'Anónimo').strip()
-
-    # Si no envió nombre o está vacío, asignar "Anónimo"
-    if not nombre:
-        nombre = 'Anónimo'
-
-    # Guardar el usuario en el diccionario
+    nombre = data.get('nombre', 'Anónimo').strip() or 'Anónimo'
     usuarios_conectados[request.sid] = nombre
 
-    print(f'Usuario registrado: {nombre} (ID: {request.sid[:8]})')
-
-    # Enviar confirmación al usuario que se registró
-    emit('registro_exitoso', {
-        'nombre': nombre,
-        'timestamp': datetime.now().strftime('%H:%M:%S')
-    })
-
-    # Notificar a TODOS que alguien se unió
-    emit('usuario_conectado', {
-        'nombre': nombre,
-        'timestamp': datetime.now().strftime('%H:%M:%S')
-    }, broadcast=True)
-
-    # Enviar lista actualizada de usuarios a TODOS
-    enviar_lista_usuarios()
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    """
-    Se ejecuta cuando un usuario se desconecta del chat
-    1. Notifica a todos que alguien se fue
-    2. Elimina al usuario de la lista
-    3. Actualiza la lista de usuarios conectados
-    """
-    # Obtener el nombre del usuario que se desconectó
-    nombre = usuarios_conectados.get(request.sid, 'Usuario')
-
-    print(f'Usuario desconectado: {nombre} (ID: {request.sid[:8]})')
-
-    # Eliminar al usuario del diccionario
-    if request.sid in usuarios_conectados:
-        del usuarios_conectados[request.sid]
-
-    # Notificar a TODOS que alguien se desconectó
-    emit('usuario_desconectado', {
-        'nombre': nombre,
-        'timestamp': datetime.now().strftime('%H:%M:%S')
-    }, broadcast=True)
-
-    # Enviar lista actualizada de usuarios a TODOS
+    print(f'Usuario registrado: {nombre}')
+    emit('registro_exitoso', {'nombre': nombre})
     enviar_lista_usuarios()
 
 @socketio.on('enviar_mensaje')
 def handle_mensaje(data):
-    """
-    Se ejecuta cuando un usuario envía un mensaje
-    1. Recibe el mensaje
-    2. Obtiene el nombre del usuario
-    3. Lo retransmite a TODOS los usuarios conectados
-    """
-    mensaje = data.get('mensaje', '').strip()
-
-    # Obtener el nombre del usuario que envió el mensaje
+    mensaje_original = data.get('mensaje', '').strip()
     nombre = usuarios_conectados.get(request.sid, 'Anónimo')
     timestamp = datetime.now().strftime('%H:%M:%S')
 
-    if mensaje:
-        # Guardar el mensaje en la lista (opcional)
-        mensajes.append({
-            'nombre': nombre,
-            'mensaje': mensaje,
-            'timestamp': timestamp
-        })
+    if not mensaje_original:
+        return
 
-        # Mostrar en la consola del servidor
-        print(f"[{timestamp}] {nombre}: {mensaje}")
+    # Cifrar mensaje (para logging/almacenamiento seguro)
+    mensaje_cifrado = cifrar_mensaje(mensaje_original)
 
-        # Enviar el mensaje a TODOS los clientes conectados (broadcast=True)
-        emit('nuevo_mensaje', {
-            'nombre': nombre,
-            'mensaje': mensaje,
-            'timestamp': timestamp,
-            'es_propio': False  # Se actualizará en el cliente
-        }, broadcast=True, include_self=False)
+    # Generar hash para verificar integridad
+    mensaje_hash = hashear_mensaje(mensaje_original)
 
-        # Enviar confirmación al que envió (para que vea su propio mensaje)
-        emit('nuevo_mensaje', {
-            'nombre': nombre,
-            'mensaje': mensaje,
-            'timestamp': timestamp,
-            'es_propio': True
-        })
+    print(f"[{timestamp}] {nombre}: {mensaje_original}")
+    print(f"  - Cifrado ({modo_cifrado}): {mensaje_cifrado[:50]}...")
+    print(f"  - Hash (SHA256): {mensaje_hash}")
 
-@socketio.on('solicitar_usuarios')
-def handle_solicitar_usuarios():
-    """
-    Se ejecuta cuando un cliente solicita la lista de usuarios conectados
-    """
+    # Enviar a todos (descifrado para que se vea en la interfaz)
+    emit('nuevo_mensaje', {
+        'nombre': nombre,
+        'mensaje': mensaje_original,  # enviar descifrado
+        'hash': mensaje_hash,          # hash para verificar integridad
+        'timestamp': timestamp,
+        'cifrado': modo_cifrado
+    }, broadcast=True)
+
+@socketio.on('mensaje_descifrar')
+def handle_descifrar(data):
+    """Permite a un cliente pedir descifrado (opcional, para debug)"""
+    cifrado = data.get('mensaje', '').encode('latin1')
+    mensaje_descifrado = descifrar_mensaje(cifrado)
+    emit('mensaje_descifrado', {'mensaje': mensaje_descifrado})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    nombre = usuarios_conectados.pop(request.sid, 'Usuario')
+    print(f'Usuario desconectado: {nombre}')
     enviar_lista_usuarios()
 
 # ============================================
-# 4. FUNCIONES AUXILIARES
+# 6. FUNCIONES AUXILIARES
 # ============================================
 
 def enviar_lista_usuarios():
-    """
-    Envía la lista actualizada de usuarios conectados a TODOS los clientes
-    """
-    lista_usuarios = list(usuarios_conectados.values())
-    emit('actualizar_usuarios', {
-        'usuarios': lista_usuarios,
-        'total': len(lista_usuarios)
-    }, broadcast=True)
+    lista = list(usuarios_conectados.values())
+    emit('actualizar_usuarios', {'usuarios': lista, 'total': len(lista)}, broadcast=True)
 
 # ============================================
-# 5. INICIAR EL SERVIDOR
+# 7. INICIO
 # ============================================
 
 if __name__ == '__main__':
-    # Mostrar información de inicio
-    print("""
-    ========================================
-    💬 CHATBOT MULTIUSUARIO INICIADO
-    ========================================
-    URL: http://localhost:5000
-    ========================================
-    Este es un chat que soporta múltiples
-    usuarios conectados simultáneamente.
-
-    Características:
-    ✅ Múltiples usuarios con nombres
-    ✅ Lista de usuarios en tiempo real
-    ✅ Notificaciones de entrada/salida
-    ✅ Mensajes identificados por nombre
-
-    Presiona Ctrl+C para detener el servidor
-    """)
-
-    # Iniciar el servidor en el puerto 5000
+    print(f"Servidor iniciado con cifrado: {modo_cifrado.upper()}")
     socketio.run(app, debug=True, port=5000)
