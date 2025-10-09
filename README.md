@@ -1,6 +1,6 @@
 # 🤖 Proyecto Chatbots en Python
 
-Este proyecto contiene **dos chatbots** diferentes, cada uno en su propia carpeta. Ambos usan la misma interfaz web pero funcionan de manera distinta.
+Este proyecto contiene **tres chatbots** diferentes, cada uno en su propia carpeta.
 
 ---
 
@@ -8,15 +8,21 @@ Este proyecto contiene **dos chatbots** diferentes, cada uno en su propia carpet
 
 ```
 ChatbotPython/
-├── chatbot-gemini/          # Chatbot con Inteligencia Artificial (Google Gemini)
+├── chatbot-simetrico/       # Chatbot con Cifrado Simétrico (AES)
 │   ├── servidor.py
-│   ├── config.py
 │   ├── requirements.txt
 │   └── templates/
 │       └── chat.html
 │
-├── chatbot-sockets/         # Chatbot Simple (solo retransmite mensajes)
+├── chatbot-asimetrico/      # Chatbot con Cifrado Asimétrico (RSA)
 │   ├── servidor.py
+│   ├── requirements.txt
+│   └── templates/
+│       └── chat.html
+│
+├── chatbot-gemini/          # Chatbot con Inteligencia Artificial (Google Gemini)
+│   ├── servidor.py
+│   ├── config.py
 │   ├── requirements.txt
 │   └── templates/
 │       └── chat.html
@@ -40,7 +46,63 @@ python --version
 
 ---
 
-## 1️⃣ Chatbot con Gemini (Inteligencia Artificial)
+## 1️⃣ Chatbot con Cifrado Simétrico (AES)
+
+Este chatbot usa cifrado simétrico (AES/Fernet) para proteger los mensajes y verifica su integridad con hashing SHA256.
+
+### 📝 Pasos para ejecutarlo:
+
+#### Paso 1: Ir a la carpeta
+```bash
+cd chatbot-simetrico
+```
+
+#### Paso 2: Instalar las dependencias
+```bash
+pip install -r requirements.txt
+```
+
+#### Paso 3: Ejecutar el servidor
+```bash
+python servidor.py
+```
+
+#### Paso 4: Abrir el navegador
+Ve a: **http://localhost:5001**
+
+### ✅ ¡Listo! Chat multiusuario con cifrado simétrico funcionando.
+
+---
+
+## 2️⃣ Chatbot con Cifrado Asimétrico (RSA)
+
+Este chatbot usa cifrado asimétrico (RSA) con clave pública/privada para proteger los mensajes.
+
+### 📝 Pasos para ejecutarlo:
+
+#### Paso 1: Ir a la carpeta
+```bash
+cd chatbot-asimetrico
+```
+
+#### Paso 2: Instalar las dependencias
+```bash
+pip install -r requirements.txt
+```
+
+#### Paso 3: Ejecutar el servidor
+```bash
+python servidor.py
+```
+
+#### Paso 4: Abrir el navegador
+Ve a: **http://localhost:5002**
+
+### ✅ ¡Listo! Chat multiusuario con cifrado asimétrico funcionando.
+
+---
+
+## 3️⃣ Chatbot con Gemini (Inteligencia Artificial)
 
 Este chatbot usa la API de Google Gemini para responder de manera inteligente.
 
@@ -77,57 +139,55 @@ Ve a: **http://localhost:5001**
 
 ---
 
-## 2️⃣ Chatbot Simple (WebSockets)
+## 🔄 Ejecutar Múltiples Chatbots al Mismo Tiempo
 
-Este chatbot solo retransmite mensajes entre usuarios. No usa inteligencia artificial.
+**Sí, puedes ejecutar los tres chatbots a la vez** porque usan puertos diferentes:
 
-### 📝 Pasos para ejecutarlo:
+- **Chatbot Simétrico:** Puerto 5001 → http://localhost:5001
+- **Chatbot Asimétrico:** Puerto 5002 → http://localhost:5002
+- **Chatbot Gemini:** Puerto 5001 → http://localhost:5001 (nota: comparte puerto con simétrico, solo uno puede correr a la vez)
 
-#### Paso 1: Ir a la carpeta
-```bash
-cd chatbot-sockets
-```
-
-#### Paso 2: Instalar las dependencias
-```bash
-pip install -r requirements.txt
-```
-
-#### Paso 3: Ejecutar el servidor
-```bash
-python servidor.py
-```
-
-#### Paso 4: Abrir el navegador
-Ve a: **http://localhost:5000**
-
-### ✅ ¡Listo! Ahora tienes un chat simple funcionando.
-
----
-
-## 🔄 Ejecutar Ambos al Mismo Tiempo
-
-**Sí, puedes ejecutar ambos chatbots a la vez** porque usan puertos diferentes:
-
-- **Chatbot Gemini:** Puerto 5001 → http://localhost:5001
-- **Chatbot Simple:** Puerto 5000 → http://localhost:5000
-
-### Pasos:
+### Pasos para ejecutar ambos chatbots de cifrado:
 
 1. Abre **dos terminales** (o dos ventanas de PowerShell/CMD)
 2. En la primera terminal:
    ```bash
-   cd chatbot-gemini
+   cd chatbot-simetrico
    python servidor.py
    ```
 3. En la segunda terminal:
    ```bash
-   cd chatbot-sockets
+   cd chatbot-asimetrico
    python servidor.py
    ```
 4. Abre dos pestañas en tu navegador:
-   - Pestaña 1: http://localhost:5001 (Gemini)
-   - Pestaña 2: http://localhost:5000 (Simple)
+   - Pestaña 1: http://localhost:5001 (Cifrado Simétrico)
+   - Pestaña 2: http://localhost:5002 (Cifrado Asimétrico)
+
+---
+
+## 🔐 Diferencias entre Cifrado Simétrico y Asimétrico
+
+### Cifrado Simétrico (AES) - Puerto 5001
+- ✅ **Más rápido** en procesamiento
+- ✅ **Menor uso de recursos**
+- 🔑 Usa la **misma clave** para cifrar y descifrar
+- 💜 Interfaz con **colores morados**
+- 📝 Ideal para: Comunicación rápida donde ambas partes comparten la misma clave
+
+### Cifrado Asimétrico (RSA) - Puerto 5002
+- ✅ **Más seguro** para intercambio inicial de claves
+- 🔐 Usa **clave pública** para cifrar y **clave privada** para descifrar
+- ⚠️ Más lento y consume más recursos
+- 💗 Interfaz con **colores rosados**
+- 📝 Ideal para: Comunicación segura donde no se puede compartir claves previamente
+
+### Características Comunes
+- ✅ Chat multiusuario en tiempo real
+- ✅ Verificación de integridad con **hashing SHA256**
+- ✅ Interfaz web moderna y responsiva
+- ✅ WebSockets para comunicación en tiempo real
+- ✅ Lista de usuarios conectados en tiempo real
 
 ---
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Multiusuario</title>
+    <title>Chat Multiusuario - Cifrado Simétrico</title>
     <style>
         * {
             margin: 0;
@@ -218,6 +218,12 @@
             font-weight: 600;
         }
 
+        .chat-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
         .user-info {
             font-size: 13px;
             opacity: 0.9;
@@ -416,7 +422,7 @@
     <div class="modal-overlay" id="nameModal">
         <div class="modal-content">
             <h2>👋 ¡Bienvenido!</h2>
-            <p>Ingresa tu nombre para unirte al chat</p>
+            <p>Ingresa tu nombre para unirte al chat (Cifrado Simétrico)</p>
             <input
                 type="text"
                 id="nameInput"
@@ -446,6 +452,7 @@
             <div class="chat-header">
                 <div>
                     <h1>💬 Chat Multiusuario</h1>
+                    <div class="chat-subtitle">🔒 Cifrado Simétrico (AES) - Puerto 5001</div>
                     <div class="user-info">Conectado como: <span id="currentUserName">---</span></div>
                 </div>
                 <div class="connection-status">
@@ -455,7 +462,7 @@
             </div>
 
             <div class="chat-messages" id="chatMessages">
-                <div class="system-message">Bienvenido al chat multiusuario 🚀</div>
+                <div class="system-message">Bienvenido al chat con cifrado simétrico (AES) 🚀</div>
             </div>
 
             <div class="chat-input">
@@ -476,7 +483,7 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script>
         // ========== VARIABLES GLOBALES ==========
-        const socket = io();
+        const socket = io('http://localhost:5001');
         let miNombre = null;
 
         // Referencias DOM

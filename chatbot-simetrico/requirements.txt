@@ -1,0 +1,18 @@
+# ============================================
+# DEPENDENCIAS DEL CHATBOT CON CIFRADO SIMÉTRICO
+# ============================================
+
+# Flask: framework web principal
+flask==3.0.0
+
+# Flask-SocketIO: comunicación en tiempo real
+flask-socketio==5.3.5
+
+# Python-SocketIO: soporte del lado del servidor
+python-socketio==5.10.0
+
+# Simple-websocket: servidor ligero para Flask-SocketIO
+simple-websocket>=0.10.0
+
+# Cryptography: para cifrado simétrico (Fernet/AES)
+cryptography==43.0.1

@@ -1,13 +1,11 @@
 # ============================================
-# CHATBOT SIMPLE CON CIFRADO Y HASHING
+# CHATBOT CON CIFRADO SIMÉTRICO (AES/Fernet)
 # ============================================
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 from datetime import datetime
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import hashes
 import hashlib
 
 # ============================================
@@ -22,64 +20,24 @@ usuarios_conectados = {}
 mensajes = []
 
 # ============================================
-# 2. CONFIGURACIÓN DE CIFRADO
-# ============================================
-#
-# INSTRUCCIONES PARA CAMBIAR MODO DE CIFRADO:
-#
-# 1. PARA USAR CIFRADO SIMÉTRICO (AES/Fernet) - MÁS RÁPIDO:
-#    → Descomenta las 3 líneas del bloque "CIFRADO SIMÉTRICO"
-#    → Comenta las 3 líneas del bloque "CIFRADO ASIMÉTRICO"
-#
-# 2. PARA USAR CIFRADO ASIMÉTRICO (RSA) - MÁS SEGURO PARA INTERCAMBIO:
-#    → Comenta las 3 líneas del bloque "CIFRADO SIMÉTRICO"
-#    → Descomenta las 3 líneas del bloque "CIFRADO ASIMÉTRICO"
-#
+# 2. CONFIGURACIÓN DE CIFRADO SIMÉTRICO
 # ============================================
 
-# --- CIFRADO SIMÉTRICO (POR DEFECTO - AES) ---
 key = Fernet.generate_key()
 fernet = Fernet(key)
 modo_cifrado = "simetrico"
-
-# --- CIFRADO ASIMÉTRICO (COMENTADO - DESCOMENTAR PARA USAR RSA) ---
-# private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-# public_key = private_key.public_key()
-# modo_cifrado = "asimetrico"
 
 # ============================================
 # 3. FUNCIONES DE CIFRADO, DESCIFRADO Y HASHING
 # ============================================
 
 def cifrar_mensaje(mensaje: str) -> bytes:
-    if modo_cifrado == "simetrico":
-        return fernet.encrypt(mensaje.encode())
-    elif modo_cifrado == "asimetrico":
-        return public_key.encrypt(
-            mensaje.encode(),
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
-            )
-        )
-    else:
-        return mensaje.encode()
+    """Cifra un mensaje usando Fernet (AES)"""
+    return fernet.encrypt(mensaje.encode())
 
 def descifrar_mensaje(cifrado: bytes) -> str:
-    if modo_cifrado == "simetrico":
-        return fernet.decrypt(cifrado).decode()
-    elif modo_cifrado == "asimetrico":
-        return private_key.decrypt(
-            cifrado,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
-            )
-        ).decode()
-    else:
-        return cifrado.decode()
+    """Descifra un mensaje usando Fernet (AES)"""
+    return fernet.decrypt(cifrado).decode()
 
 def hashear_mensaje(mensaje: str) -> str:
     """Genera un hash SHA256 del mensaje para verificar integridad"""
@@ -131,7 +89,7 @@ def handle_mensaje(data):
     mensaje_hash = hashear_mensaje(mensaje_original)
 
     print(f"[{timestamp}] {nombre}: {mensaje_original}")
-    print(f"  - Cifrado ({modo_cifrado}): {mensaje_cifrado[:50]}...")
+    print(f"  - Cifrado (simétrico): {mensaje_cifrado[:50]}...")
     print(f"  - Hash (SHA256): {mensaje_hash}")
 
     # Enviar a todos (descifrado para que se vea en la interfaz)
@@ -169,5 +127,10 @@ def enviar_lista_usuarios():
 # ============================================
 
 if __name__ == '__main__':
-    print(f"Servidor iniciado con cifrado: {modo_cifrado.upper()}")
-    socketio.run(app, debug=True, port=5000)
+    print(f"========================================")
+    print(f"SERVIDOR CON CIFRADO SIMÉTRICO (AES)")
+    print(f"========================================")
+    print(f"Puerto: 5001")
+    print(f"Modo de cifrado: {modo_cifrado.upper()}")
+    print(f"========================================")
+    socketio.run(app, debug=True, port=5001)
