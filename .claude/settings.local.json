@@ -5,7 +5,14 @@
       "Bash(mkdir:*)",
       "Bash(pip install:*)",
       "Bash(pip uninstall:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(copy chatbot-simetricoservidor.py versionesv2.0_con-sha256servidor_simetrico.py)",
+      "Bash(copy chatbot-asimetricoservidor.py versionesv2.0_con-sha256servidor_asimetrico.py)",
+      "Bash(tree:*)",
+      "Bash(copy \"chatbot-simetrico\\servidor.py\" \"versiones\\v3.0_con-sha256-md5\\chatbot-simetrico\\servidor.py\")",
+      "Bash(copy \"chatbot-asimetrico\\servidor.py\" \"versiones\\v3.0_con-sha256-md5\\chatbot-asimetrico\\servidor.py\")",
+      "Bash(copy \"chatbot-simetrico\\requirements.txt\" \"versiones\\v3.0_con-sha256-md5\\chatbot-simetrico\\requirements.txt\")",
+      "Bash(copy:*)"
     ],
     "deny": [],
     "ask": []

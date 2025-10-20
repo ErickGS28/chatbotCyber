@@ -1,0 +1,55 @@
+════════════════════════════════════════════════════════════════
+ VERSIÓN 3.0 - CHATBOT CON CIFRADO ASIMÉTRICO + SHA256 + MD5
+════════════════════════════════════════════════════════════════
+
+Esta es la versión actual con todas las características de seguridad:
+- Cifrado asimétrico RSA-2048
+- Hash SHA256 para verificación de integridad de mensajes
+- Cálculo de MD5 para verificación de integridad de archivos
+
+════════════════════════════════════════════════════════════════
+📋 INSTRUCCIONES DE EJECUCIÓN:
+════════════════════════════════════════════════════════════════
+
+1️⃣  Abrir terminal y navegar a esta carpeta:
+    cd versiones/v3.0_con-sha256-md5/chatbot-asimetrico
+
+2️⃣  Instalar dependencias:
+    pip install -r requirements.txt
+
+3️⃣  Ejecutar el servidor:
+    python servidor.py
+
+4️⃣  Abrir navegador en:
+    http://localhost:5002
+
+5️⃣  Ingresar tu nombre y comenzar a chatear
+
+════════════════════════════════════════════════════════════════
+✨ CARACTERÍSTICAS DE ESTA VERSIÓN:
+════════════════════════════════════════════════════════════════
+
+✅ Chat multiusuario en tiempo real
+✅ WebSockets para comunicación instantánea
+✅ Cifrado asimétrico con RSA-2048
+✅ Hash SHA256 para verificar integridad de mensajes
+✅ Los mensajes incluyen hash para detectar alteraciones
+✅ Logging de mensajes cifrados con su hash
+✅ Función hashear_mensaje() - genera SHA256
+✅ Función verificar_hash() - valida integridad
+
+🔐 SEGURIDAD COMPLETA:
+   - Cifrado para confidencialidad
+   - SHA256 para integridad
+   - MD5 para verificación de archivos del proyecto
+
+════════════════════════════════════════════════════════════════
+🔑 TIPO DE CIFRADO: Asimétrico (RSA)
+🔌 PUERTO: 5002
+════════════════════════════════════════════════════════════════
+
+Para detener el servidor: Ctrl+C
+
+════════════════════════════════════════════════════════════════
+📅 FECHA DE IMPLEMENTACIÓN: 20 de Octubre 2025
+════════════════════════════════════════════════════════════════

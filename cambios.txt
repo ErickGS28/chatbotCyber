@@ -1,0 +1,219 @@
+================================================================================
+           REGISTRO DE CAMBIOS - PROYECTO CHATBOT PYTHON
+================================================================================
+
+Este archivo documenta las versiones del proyecto y los hashes MD5 de los
+archivos fuente para verificación de integridad.
+
+================================================================================
+
+01 de Octubre 2025 - Implementación inicial del chatbot básico sin cifrado
+SW - servidor.py = d0b4616be17c6d2428ade276eedef35c
+
+10 de Octubre 2025 - Separación en versión simétrica con cifrado AES
+SW - servidor.py = 4d6065ac226697f678dc11f614dddede
+
+10 de Octubre 2025 - Separación en versión asimétrica con cifrado RSA
+SW - servidor.py = d9d3280d63f28cac0f50a472c90f29f9
+
+20 de Octubre 2025 - Implementación de SHA256 y MD5 en versión simétrica
+SW - servidor.py = f33661df2d9ad515be5f4cda0ff556a5
+
+20 de Octubre 2025 - Implementación de SHA256 y MD5 en versión asimétrica
+SW - servidor.py = fe2815eb7c32d05434eeda0656b3c676
+
+================================================================================
+                            DETALLE DE VERSIONES
+================================================================================
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│ VERSION 1.0 - CHAT BASICO (01/10/2025)                                    │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│ Archivo: versiones/v1.0_chat-basico/servidor.py                           │
+│ MD5: d0b4616be17c6d2428ade276eedef35c                                      │
+│                                                                            │
+│ Características implementadas:                                            │
+│ ✅ Chat multiusuario básico con WebSockets                                 │
+│ ✅ Registro de usuarios con nombres                                        │
+│ ✅ Lista de usuarios conectados en tiempo real                             │
+│ ✅ Interfaz web simple                                                     │
+│ ✅ Mensajes en texto plano (sin cifrado)                                   │
+│                                                                            │
+│ Puerto: 5000                                                               │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│ VERSION 2.0 - CIFRADO SEPARADO (10/10/2025)                               │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│ A) VERSIÓN SIMÉTRICA                                                       │
+│ ───────────────────────────────────────────────────────────────────────    │
+│ Archivo: versiones/v2.0_cifrado-separado/chatbot-simetrico/servidor.py    │
+│ MD5: 4d6065ac226697f678dc11f614dddede                                      │
+│                                                                            │
+│ Cambios implementados:                                                    │
+│ ✅ Cifrado simétrico con AES (Fernet)                                      │
+│ ✅ Función cifrar_mensaje() - cifra con AES                                │
+│ ✅ Función descifrar_mensaje() - descifra con AES                          │
+│ ✅ Los mensajes se cifran antes de logging                                 │
+│ ✅ Usa una sola llave compartida                                           │
+│                                                                            │
+│ Puerto: 5001                                                               │
+│                                                                            │
+│ ─────────────────────────────────────────────────────────────────────────  │
+│ B) VERSIÓN ASIMÉTRICA                                                      │
+│ ───────────────────────────────────────────────────────────────────────    │
+│ Archivo: versiones/v2.0_cifrado-separado/chatbot-asimetrico/servidor.py   │
+│ MD5: d9d3280d63f28cac0f50a472c90f29f9                                      │
+│                                                                            │
+│ Cambios implementados:                                                    │
+│ ✅ Cifrado asimétrico con RSA-2048                                         │
+│ ✅ Función cifrar_mensaje() - cifra con llave pública                      │
+│ ✅ Función descifrar_mensaje() - descifra con llave privada                │
+│ ✅ Los mensajes se cifran antes de logging                                 │
+│ ✅ Usa par de llaves pública/privada                                       │
+│                                                                            │
+│ Puerto: 5002                                                               │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│ VERSION 3.0 - CON SHA256 Y MD5 (20/10/2025)                               │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│ A) VERSIÓN SIMÉTRICA CON SHA256                                            │
+│ ───────────────────────────────────────────────────────────────────────    │
+│ Archivo: versiones/v3.0_con-sha256-md5/chatbot-simetrico/servidor.py      │
+│ MD5: f33661df2d9ad515be5f4cda0ff556a5                                      │
+│                                                                            │
+│ Nuevas funciones implementadas:                                           │
+│ ✅ Función hashear_mensaje() - genera hash SHA256                          │
+│ ✅ Función verificar_hash() - valida integridad del mensaje                │
+│ ✅ Los mensajes incluyen hash SHA256 para detectar alteraciones            │
+│ ✅ Logging incluye mensaje cifrado + hash SHA256                           │
+│ ✅ Seguridad completa: Cifrado + Integridad                                │
+│                                                                            │
+│ Puerto: 5001                                                               │
+│                                                                            │
+│ ─────────────────────────────────────────────────────────────────────────  │
+│ B) VERSIÓN ASIMÉTRICA CON SHA256                                           │
+│ ───────────────────────────────────────────────────────────────────────    │
+│ Archivo: versiones/v3.0_con-sha256-md5/chatbot-asimetrico/servidor.py     │
+│ MD5: fe2815eb7c32d05434eeda0656b3c676                                      │
+│                                                                            │
+│ Nuevas funciones implementadas:                                           │
+│ ✅ Función hashear_mensaje() - genera hash SHA256                          │
+│ ✅ Función verificar_hash() - valida integridad del mensaje                │
+│ ✅ Los mensajes incluyen hash SHA256 para detectar alteraciones            │
+│ ✅ Logging incluye mensaje cifrado + hash SHA256                           │
+│ ✅ Seguridad completa: Cifrado + Integridad                                │
+│                                                                            │
+│ Puerto: 5002                                                               │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                        COMANDO PARA VERIFICAR MD5
+================================================================================
+
+Para verificar que un archivo no ha sido modificado, calcular su MD5:
+
+Windows (PowerShell):
+Get-FileHash -Algorithm MD5 archivo.py
+
+Linux/Mac:
+md5sum archivo.py
+
+Python:
+python -c "import hashlib; print(hashlib.md5(open('archivo.py','rb').read()).hexdigest())"
+
+Comparar el resultado con el MD5 registrado en este documento.
+Si coinciden: ✅ Archivo íntegro
+Si NO coinciden: ⚠️ Archivo modificado
+
+================================================================================
+                        ESTRUCTURA DEL PROYECTO
+================================================================================
+
+versiones/
+├── v1.0_chat-basico/
+│   ├── servidor.py                    (MD5: d0b4616be17c6d2428ade276eedef35c)
+│   ├── requirements.txt
+│   └── instrucciones.txt
+│
+├── v2.0_cifrado-separado/
+│   ├── chatbot-simetrico/
+│   │   ├── servidor.py                (MD5: 4d6065ac226697f678dc11f614dddede)
+│   │   ├── requirements.txt
+│   │   └── instrucciones.txt
+│   └── chatbot-asimetrico/
+│       ├── servidor.py                (MD5: d9d3280d63f28cac0f50a472c90f29f9)
+│       ├── requirements.txt
+│       └── instrucciones.txt
+│
+└── v3.0_con-sha256-md5/               [VERSION ACTUAL]
+    ├── chatbot-simetrico/
+    │   ├── servidor.py                (MD5: f33661df2d9ad515be5f4cda0ff556a5)
+    │   ├── requirements.txt
+    │   └── instrucciones.txt
+    └── chatbot-asimetrico/
+        ├── servidor.py                (MD5: fe2815eb7c32d05434eeda0656b3c676)
+        ├── requirements.txt
+        └── instrucciones.txt
+
+================================================================================
+                        CÓMO EJECUTAR CADA VERSIÓN
+================================================================================
+
+Cada carpeta de versión contiene un archivo instrucciones.txt con los pasos
+específicos para ejecutar esa versión del chatbot.
+
+VERSION 1.0:
+cd versiones/v1.0_chat-basico
+python servidor.py
+http://localhost:5000
+
+VERSION 2.0 SIMÉTRICA:
+cd versiones/v2.0_cifrado-separado/chatbot-simetrico
+python servidor.py
+http://localhost:5001
+
+VERSION 2.0 ASIMÉTRICA:
+cd versiones/v2.0_cifrado-separado/chatbot-asimetrico
+python servidor.py
+http://localhost:5002
+
+VERSION 3.0 SIMÉTRICA (ACTUAL):
+cd versiones/v3.0_con-sha256-md5/chatbot-simetrico
+python servidor.py
+http://localhost:5001
+
+VERSION 3.0 ASIMÉTRICA (ACTUAL):
+cd versiones/v3.0_con-sha256-md5/chatbot-asimetrico
+python servidor.py
+http://localhost:5002
+
+================================================================================
+                        RESUMEN DE IMPLEMENTACIONES
+================================================================================
+
+📅 01/10/2025: Chat básico funcional sin cifrado
+📅 10/10/2025: Separación en dos versiones con cifrado (simétrico y asimétrico)
+📅 20/10/2025: Implementación de SHA256 para verificación de integridad + MD5
+
+Tecnologías usadas:
+- Flask + Flask-SocketIO (WebSockets)
+- Cryptography (Fernet para AES, RSA para asimétrico)
+- Hashlib (SHA256 para integridad de mensajes, MD5 para archivos)
+
+================================================================================
+                        FIN DEL REGISTRO DE CAMBIOS
+================================================================================
+
+Última actualización: 20 de Octubre 2025
+Proyecto: ChatbotPython
+Ubicación: C:\Users\eeeri\Downloads\ChatbotPython
+
+Este archivo debe actualizarse cada vez que se modifique código fuente.

@@ -1,0 +1,50 @@
+════════════════════════════════════════════════════════════════
+        VERSIÓN 2.0 - CHATBOT CON CIFRADO SIMÉTRICO (AES)
+════════════════════════════════════════════════════════════════
+
+Esta versión implementa cifrado simétrico usando AES (Fernet).
+Los mensajes se cifran antes de guardarse pero aún NO tiene
+verificación de integridad con SHA256.
+
+════════════════════════════════════════════════════════════════
+📋 INSTRUCCIONES DE EJECUCIÓN:
+════════════════════════════════════════════════════════════════
+
+1️⃣  Abrir terminal y navegar a esta carpeta:
+    cd versiones/v2.0_cifrado-separado/chatbot-simetrico
+
+2️⃣  Instalar dependencias:
+    pip install -r requirements.txt
+
+3️⃣  Ejecutar el servidor:
+    python servidor.py
+
+4️⃣  Abrir navegador en:
+    http://localhost:5001
+
+5️⃣  Ingresar tu nombre y comenzar a chatear
+
+════════════════════════════════════════════════════════════════
+✨ CARACTERÍSTICAS DE ESTA VERSIÓN:
+════════════════════════════════════════════════════════════════
+
+✅ Chat multiusuario en tiempo real
+✅ WebSockets para comunicación instantánea
+✅ Cifrado simétrico con AES (Fernet)
+✅ Los mensajes se cifran antes de logging
+✅ Usa una sola llave para cifrar/descifrar
+
+❌ NO tiene hash SHA256
+❌ NO tiene verificación de integridad
+❌ NO tiene cálculo de MD5 de archivos
+
+════════════════════════════════════════════════════════════════
+🔑 TIPO DE CIFRADO: Simétrico (AES/Fernet)
+🔌 PUERTO: 5001
+════════════════════════════════════════════════════════════════
+
+Para detener el servidor: Ctrl+C
+
+════════════════════════════════════════════════════════════════
+📅 FECHA DE IMPLEMENTACIÓN: Octubre 2025
+════════════════════════════════════════════════════════════════
