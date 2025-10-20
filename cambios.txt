@@ -16,10 +16,10 @@ SW - servidor.py = 4d6065ac226697f678dc11f614dddede
 10 de Octubre 2025 - Separación en versión asimétrica con cifrado RSA
 SW - servidor.py = d9d3280d63f28cac0f50a472c90f29f9
 
-20 de Octubre 2025 - Implementación de SHA256 y MD5 en versión simétrica
+19 de Octubre 2025 - Implementación de SHA256 y MD5 en versión simétrica
 SW - servidor.py = f33661df2d9ad515be5f4cda0ff556a5
 
-20 de Octubre 2025 - Implementación de SHA256 y MD5 en versión asimétrica
+19 de Octubre 2025 - Implementación de SHA256 y MD5 en versión asimétrica
 SW - servidor.py = fe2815eb7c32d05434eeda0656b3c676
 
 ================================================================================
